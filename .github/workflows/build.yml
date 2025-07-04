@@ -1,0 +1,31 @@
+
+name: Build EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pyinstaller-hooks-contrib pyvista vtk numpy plotly==5.* tkinterdnd2
+
+      - name: Build exe
+        run: |
+          pyinstaller --onefile --collect-all plotly --collect-all pyvista --collect-all vtk --hidden-import=tkinterdnd2 3D_compare_code.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3D_compare_tool
+          path: dist/3D_compare_code.exe
